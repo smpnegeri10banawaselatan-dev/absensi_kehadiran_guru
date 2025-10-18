@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekap Absensi Guru</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+  <!-- Header -->
+  <header class="bg-blue-700 text-white p-4 shadow-md flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/1/1b/Google_Classroom_Logo.svg" class="w-10 h-10" alt="Logo">
+      <h1 class="text-xl font-semibold">📋 Rekap Absensi Guru - MKKS ROSO NU SINTUVU</h1>
+    </div>
+    <a href="index.html" class="bg-green-500 px-3 py-1 rounded hover:bg-green-600 text-sm">⬅ Kembali ke Absensi</a>
+  </header>
+
+  <main class="p-6">
+    <div class="bg-white p-4 rounded-xl shadow-md mb-6">
+      <h2 class="text-lg font-semibold mb-3">🔍 Filter Data</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label class="block mb-1 font-medium">Nama Guru</label>
+          <select id="filterGuru" class="border rounded w-full p-2"></select>
+        </div>
+        <div>
+          <label class="block mb-1 font-medium">Kelas</label>
+          <select id="filterKelas" class="border rounded w-full p-2"></select>
+        </div>
+        <div class="flex items-end">
+          <button id="btnFilter" class="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700">Terapkan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grafik -->
+    <div class="bg-white p-4 rounded-xl shadow-md mb-6">
+      <h2 class="text-lg font-semibold mb-3">📊 Grafik Kehadiran Guru</h2>
+      <canvas id="attendanceChart" height="120"></canvas>
+    </div>
+
+    <!-- Tabel -->
+    <div class="bg-white p-4 rounded-xl shadow-md overflow-x-auto">
+      <h2 class="text-lg font-semibold mb-3">📑 Data Rekap Absensi</h2>
+      <table class="min-w-full border-collapse border border-gray-300 text-sm">
+        <thead class="bg-blue-600 text-white">
+          <tr>
+            <th class="border px-3 py-2">Tanggal</th>
+            <th class="border px-3 py-2">Nama Guru</th>
+            <th class="border px-3 py-2">NIP</th>
+            <th class="border px-3 py-2">Mapel</th>
+            <th class="border px-3 py-2">Kelas</th>
+            <th class="border px-3 py-2">Topik</th>
+            <th class="border px-3 py-2">Jumlah Hadir</th>
+            <th class="border px-3 py-2">Lokasi</th>
+            <th class="border px-3 py-2">Foto</th>
+          </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzMNKRKNY_Wge1fpc-zL1gqD3UF4S83x_csYXN9F88FAyNIWorfsEfDZBKnaPxW1c2M0A/exec"; // GANTI dengan URL WebApp kamu
+
+    const tbody = document.getElementById("dataBody");
+    const filterGuru = document.getElementById("filterGuru");
+    const filterKelas = document.getElementById("filterKelas");
+    let allData = [];
+
+    // ✅ Ambil data absensi
+    async function loadAttendance() {
+      const res = await fetch(`${SCRIPT_URL}?action=getAttendance`);
+      const data = await res.json();
+      allData = data;
+      renderTable(data);
+      populateFilters(data);
+      renderChart(data);
+    }
+
+    // ✅ Isi dropdown filter
+    function populateFilters(data) {
+      const gurus = [...new Set(data.map(d => d.name))];
+      const kelas = [...new Set(data.map(d => d.kelas))];
+      filterGuru.innerHTML = `<option value="">Semua Guru</option>` + gurus.map(g => `<option>${g}</option>`).join('');
+      filterKelas.innerHTML = `<option value="">Semua Kelas</option>` + kelas.map(k => `<option>${k}</option>`).join('');
+    }
+
+    // ✅ Tampilkan data tabel
+    function renderTable(data) {
+      tbody.innerHTML = data.map(item => `
+        <tr class="hover:bg-gray-50">
+          <td class="border px-3 py-2">${new Date(item.timestamp).toLocaleString('id-ID')}</td>
+          <td class="border px-3 py-2">${item.name}</td>
+          <td class="border px-3 py-2">${item.nip}</td>
+          <td class="border px-3 py-2">${item.subject}</td>
+          <td class="border px-3 py-2">${item.kelas}</td>
+          <td class="border px-3 py-2">${item.topic}</td>
+          <td class="border px-3 py-2 text-center">${item.presentCount}</td>
+          <td class="border px-3 py-2 text-xs">${item.latitude}, ${item.longitude}</td>
+          <td class="border px-3 py-2 text-center">
+            ${item.photoUrl && item.photoUrl.startsWith('http') 
+              ? `<a href="${item.photoUrl}" target="_blank"><img src="${item.photoUrl}" class="w-16 h-16 object-cover rounded-md"></a>` 
+              : '❌ Tidak ada'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // ✅ Filter data
+    document.getElementById("btnFilter").addEventListener("click", () => {
+      const guru = filterGuru.value;
+      const kelas = filterKelas.value;
+      let filtered = allData;
+
+      if (guru) filtered = filtered.filter(d => d.name === guru);
+      if (kelas) filtered = filtered.filter(d => d.kelas === kelas);
+
+      renderTable(filtered);
+      renderChart(filtered);
+    });
+
+    // ✅ Grafik kehadiran
+    let chart;
+    function renderChart(data) {
+      const totals = {};
+      data.forEach(d => {
+        if (!totals[d.name]) totals[d.name] = 0;
+        totals[d.name] += Number(d.presentCount || 0);
+      });
+
+      const labels = Object.keys(totals);
+      const values = Object.values(totals);
+
+      const ctx = document.getElementById("attendanceChart").getContext("2d");
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Jumlah Kehadiran",
+            data: values,
+            borderWidth: 1,
+          }]
+        },
+        options: {
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    // ✅ Jalankan saat halaman dibuka
+    loadAttendance();
+  </script>
+</body>
+</html>
