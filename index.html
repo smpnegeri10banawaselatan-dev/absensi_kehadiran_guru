@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Absensi Guru Mapel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center py-6">
+
+  <h1 class="text-2xl font-bold mb-4 text-center">📋 Absensi Guru Mapel</h1>
+
+  <div class="bg-white shadow-lg p-6 rounded-xl w-11/12 max-w-md">
+    <label class="block mb-2 font-semibold">Pilih Guru</label>
+    <select id="teacherSelect" class="w-full border rounded p-2 mb-4"></select>
+
+    <label class="block mb-2 font-semibold">Topik</label>
+    <input id="topic" type="text" class="w-full border rounded p-2 mb-4" placeholder="Masukkan topik pembelajaran">
+
+    <label class="block mb-2 font-semibold">Jumlah Kehadiran</label>
+    <input id="presentCount" type="number" class="w-full border rounded p-2 mb-4" placeholder="Misal: 30">
+
+    <div class="mb-4">
+      <label class="block mb-2 font-semibold">Ambil Foto Kehadiran</label>
+      <video id="video" autoplay playsinline class="rounded-md border w-full"></video>
+      <canvas id="canvas" class="hidden"></canvas>
+      <img id="preview" class="hidden mt-2 rounded-lg border" />
+      <button id="takePhoto" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg w-full">📷 Ambil Foto</button>
+    </div>
+
+    <button id="submitBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg w-full">✅ Simpan Absensi</button>
+  </div>
+
+  <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyOVpa2MSqij_x_xPb-bmNZ3BE-i-Y8-tQiroyXO66EqGDeq27eAfEYFMQ1udct8HQzHQ/exec"; // GANTI dengan URL Apps Script Anda
+    const teacherSelect = document.getElementById("teacherSelect");
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const preview = document.getElementById("preview");
+    const topic = document.getElementById("topic");
+    const presentCount = document.getElementById("presentCount");
+
+    // ✅ Load daftar guru
+    fetch(`${GAS_URL}?action=getTeachers`)
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(t => {
+          const opt = document.createElement("option");
+          opt.value = JSON.stringify(t);
+          opt.textContent = `${t.name} - ${t.subject}`;
+          teacherSelect.appendChild(opt);
+        });
+      });
+
+    // ✅ Aktifkan kamera
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream)
+      .catch(err => alert("Kamera tidak bisa diakses: " + err));
+
+    let photoData = '';
+
+    // ✅ Ambil foto
+    document.getElementById("takePhoto").addEventListener("click", () => {
+      const ctx = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0);
+      photoData = canvas.toDataURL("image/png");
+      preview.src = photoData;
+      preview.classList.remove("hidden");
+    });
+
+    // ✅ Simpan data ke Apps Script
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const selected = JSON.parse(teacherSelect.value);
+      const position = await getLocation();
+
+      const payload = [{
+        name: selected.name,
+        nip: selected.nip,
+        subject: selected.subject,
+        topic: topic.value,
+        presentCount: presentCount.value,
+        latitude: position.lat,
+        longitude: position.lng,
+        photo: photoData
+      }];
+
+      const res = await fetch(GAS_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json();
+      alert(result.status === "Success" ? "✅ Absen berhasil disimpan!" : "❌ Gagal menyimpan absen");
+    });
+
+    // ✅ Ambil lokasi
+    function getLocation() {
+      return new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+          () => resolve({ lat: '', lng: '' })
+        );
+      });
+    }
+  </script>
+</body>
+</html>
