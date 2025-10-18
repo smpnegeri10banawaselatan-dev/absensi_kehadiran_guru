@@ -3,130 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Absensi Guru Mapel</title>
+  <title>Absensi Guru - SMP Negeri 1 Sintuvu</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center py-6">
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
 
-  <h1 class="text-2xl font-bold mb-4 text-center">📋 Absensi Guru Mapel</h1>
+  <!-- Header Sekolah -->
+  <div class="text-center mb-6">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Logo_Sekolah.png" alt="Logo Sekolah" class="mx-auto w-20 h-20 mb-2 rounded-full border shadow-md">
+    <h1 class="text-xl font-bold text-blue-800 uppercase tracking-wide">SMP Negeri 1 Sintuvu</h1>
+    <p class="text-gray-600 text-sm">Jl. Pendidikan No. 123, Kecamatan Sintuvu, Kabupaten Donggala</p>
+  </div>
 
-  <div class="bg-white shadow-lg p-6 rounded-xl w-11/12 max-w-md">
-    <!-- Pilih Guru -->
-    <label class="block mb-2 font-semibold">Pilih Guru</label>
-    <select id="teacherSelect" class="w-full border rounded p-2 mb-4"></select>
+  <!-- Card Form Absensi -->
+  <div class="w-full max-w-3xl bg-white p-6 rounded-2xl shadow-lg">
+    <h2 class="text-2xl font-bold text-center mb-4 text-blue-700">📋 Form Absensi Guru</h2>
 
-    <!-- Pilih Kelas -->
-    <label class="block mb-2 font-semibold">Pilih Kelas</label>
-    <select id="kelasSelect" class="w-full border rounded p-2 mb-4">
-      <option value="">-- Pilih Kelas --</option>
-      <option value="Kelas 7">Kelas 7</option>
-      <option value="Kelas 8">Kelas 8</option>
-      <option value="Kelas 9">Kelas 9</option>
-    </select>
+    <form id="attendanceForm" class="space-y-4">
+      <!-- Nama Guru -->
+      <div>
+        <label class="block text-gray-700 font-semibold">Nama Guru</label>
+        <select id="teacherSelect" class="form-select border-gray-300 rounded-lg w-full p-2">
+          <option value="">Pilih Guru</option>
+        </select>
+      </div>
 
-    <!-- Topik -->
-    <label class="block mb-2 font-semibold">Topik</label>
-    <input id="topic" type="text" class="w-full border rounded p-2 mb-4" placeholder="Masukkan topik pembelajaran">
+      <!-- NIP -->
+      <div>
+        <label class="block text-gray-700 font-semibold">NIP</label>
+        <input type="text" id="nip" class="form-control" readonly>
+      </div>
 
-    <!-- Jumlah Hadir -->
-    <label class="block mb-2 font-semibold">Jumlah Kehadiran</label>
-    <input id="presentCount" type="number" class="w-full border rounded p-2 mb-4" placeholder="Misal: 30">
+      <!-- Mata Pelajaran -->
+      <div>
+        <label class="block text-gray-700 font-semibold">Mata Pelajaran</label>
+        <input type="text" id="subject" class="form-control" readonly>
+      </div>
 
-    <!-- Kamera -->
-    <div class="mb-4">
-      <label class="block mb-2 font-semibold">Ambil Foto Kehadiran</label>
-      <video id="video" autoplay playsinline class="rounded-md border w-full"></video>
-      <canvas id="canvas" class="hidden"></canvas>
-      <img id="preview" class="hidden mt-2 rounded-lg border" />
-      <button id="takePhoto" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg w-full hover:bg-blue-600">📷 Ambil Foto</button>
-    </div>
+      <!-- Kelas -->
+      <div>
+        <label class="block text-gray-700 font-semibold">Kelas</label>
+        <select id="class" class="form-select border-gray-300 rounded-lg w-full p-2" required>
+          <option value="">Pilih Kelas</option>
+          <option value="VII">Kelas VII</option>
+          <option value="VIII">Kelas VIII</option>
+          <option value="IX">Kelas IX</option>
+        </select>
+      </div>
 
-    <button id="submitBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg w-full hover:bg-green-700">✅ Simpan Absensi</button>
+      <!-- Topik Pembelajaran -->
+      <div>
+        <label class="block text-gray-700 font-semibold">Topik Pembelajaran</label>
+        <input type="text" id="topic" class="form-control" placeholder="Masukkan topik hari ini" required>
+      </div>
+
+      <!-- Jumlah Kehadiran -->
+      <div>
+        <label class="block text-gray-700 font-semibold">Jumlah Kehadiran Siswa</label>
+        <input type="number" id="presentCount" class="form-control" placeholder="Contoh: 30" required>
+      </div>
+
+      <!-- Foto -->
+      <div>
+        <label class="block text-gray-700 font-semibold">Foto Dokumentasi</label>
+        <input type="file" id="photo" accept="image/*" capture="camera" class="form-control" required>
+      </div>
+
+      <!-- Lokasi -->
+      <div>
+        <label class="block text-gray-700 font-semibold">Lokasi</label>
+        <p id="location" class="text-gray-600 text-sm">Menunggu lokasi...</p>
+      </div>
+
+      <!-- Tombol Kirim -->
+      <div class="text-center">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition">Kirim Absensi</button>
+      </div>
+    </form>
+
+    <!-- Status -->
+    <div id="status" class="mt-4 text-center text-green-600 font-medium hidden">✅ Absensi berhasil dikirim!</div>
   </div>
 
   <script>
-    // 🔗 Ganti URL sesuai Apps Script milik Anda
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzbzzdtUGHD0PH6qz7m9bxVuBOw9h96kjAWmUCVKvOAYXasTiCOn8V0vovuqp-kFmzm3A/exec";
-
-    const teacherSelect = document.getElementById("teacherSelect");
-    const kelasSelect = document.getElementById("kelasSelect");
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
-    const preview = document.getElementById("preview");
-    const topic = document.getElementById("topic");
-    const presentCount = document.getElementById("presentCount");
-
-    // ✅ Ambil daftar guru dari Apps Script
-    fetch(`${GAS_URL}?action=getTeachers`)
-      .then(res => res.json())
-      .then(data => {
-        data.forEach(t => {
-          const opt = document.createElement("option");
-          opt.value = JSON.stringify(t);
-          opt.textContent = `${t.name} - ${t.subject}`;
-          teacherSelect.appendChild(opt);
-        });
-      })
-      .catch(() => alert("❌ Gagal memuat data guru."));
-
-    // ✅ Aktifkan kamera
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => video.srcObject = stream)
-      .catch(err => alert("Kamera tidak bisa diakses: " + err));
-
-    let photoData = '';
-
-    // ✅ Ambil foto
-    document.getElementById("takePhoto").addEventListener("click", () => {
-      const ctx = canvas.getContext("2d");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0);
-      photoData = canvas.toDataURL("image/png");
-      preview.src = photoData;
-      preview.classList.remove("hidden");
-    });
-
-    // ✅ Simpan absensi ke Apps Script
-    document.getElementById("submitBtn").addEventListener("click", async () => {
-      if (!teacherSelect.value || !kelasSelect.value) {
-        alert("⚠️ Harap pilih guru dan kelas terlebih dahulu.");
-        return;
-      }
-
-      const selected = JSON.parse(teacherSelect.value);
-      const position = await getLocation();
-
-      const payload = [{
-        name: selected.name,
-        nip: selected.nip,
-        subject: selected.subject,
-        kelas: kelasSelect.value,
-        topic: topic.value,
-        presentCount: presentCount.value,
-        latitude: position.lat,
-        longitude: position.lng,
-        photo: photoData
-      }];
-
-      const res = await fetch(GAS_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-      });
-
-      const result = await res.json();
-      alert(result.status === "Success" ? "✅ Absen berhasil disimpan!" : "❌ Gagal menyimpan absen");
-    });
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwo9OvfS6w_8fN2T-yBm5Mr4B3U-PMCdMCn52rgjj2mUkUYbSfZ7y53PgcSpsGBiSMBXg/exec"; // Ganti dengan URL Web App Apps Script kamu
+    let latitude = "", longitude = "";
 
     // ✅ Ambil lokasi otomatis
-    function getLocation() {
-      return new Promise((resolve) => {
-        navigator.geolocation.getCurrentPosition(
-          pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-          () => resolve({ lat: '', lng: '' })
-        );
-      });
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+          document.getElementById("location").textContent = `📍 ${latitude}, ${longitude}`;
+        },
+        err => {
+          document.getElementById("location").textContent = "Tidak dapat mengakses lokasi.";
+        }
+      );
     }
+
+    // ✅ Ambil daftar guru dari Spreadsheet
+    fetch(`${scriptURL}?action=getTeachers`)
+      .then(res => res.json())
+      .then(data => {
+        const select = document.getElementById("teacherSelect");
+        data.forEach(t => {
+          const option = document.createElement("option");
+          option.value = t.name;
+          option.textContent = `${t.name} (${t.subject})`;
+          option.dataset.nip = t.nip;
+          option.dataset.subject = t.subject;
+          select.appendChild(option);
+        });
+      });
+
+    // ✅ Isi otomatis NIP dan mapel
+    document.getElementById("teacherSelect").addEventListener("change", e => {
+      const opt = e.target.selectedOptions[0];
+      document.getElementById("nip").value = opt.dataset.nip || "";
+      document.getElementById("subject").value = opt.dataset.subject || "";
+    });
+
+    // ✅ Kirim absensi
+    document.getElementById("attendanceForm").addEventListener("submit", async e => {
+      e.preventDefault();
+
+      const file = document.getElementById("photo").files[0];
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const data = [{
+          name: document.getElementById("teacherSelect").value,
+          nip: document.getElementById("nip").value,
+          subject: document.getElementById("subject").value,
+          class: document.getElementById("class").value,
+          topic: document.getElementById("topic").value,
+          presentCount: document.getElementById("presentCount").value,
+          latitude,
+          longitude,
+          photo: reader.result
+        }];
+
+        const response = await fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        if (result.status === "Success") {
+          document.getElementById("status").classList.remove("hidden");
+          e.target.reset();
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   </script>
 </body>
 </html>
