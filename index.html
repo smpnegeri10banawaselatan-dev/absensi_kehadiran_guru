@@ -3,45 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Absensi Guru - SMP Negeri 1 Sintuvu</title>
+  <title>Absensi Guru - SMPN 10 BANAWA SELATAN</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
 
-  <!-- Header Sekolah -->
+  <!-- Header -->
   <div class="text-center mb-6">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Logo_Sekolah.png" alt="Logo Sekolah" class="mx-auto w-20 h-20 mb-2 rounded-full border shadow-md">
-    <h1 class="text-xl font-bold text-blue-800 uppercase tracking-wide">SMP Negeri 1 Sintuvu</h1>
-    <p class="text-gray-600 text-sm">Jl. Pendidikan No. 123, Kecamatan Sintuvu, Kabupaten Donggala</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/Logo_Sekolah.png" alt="Logo Sekolah"
+         class="mx-auto w-20 h-20 mb-2 rounded-full border shadow-md">
+    <h1 class="text-xl font-bold text-blue-800 uppercase tracking-wide">SMPN 10 BANAWA SELATAN</h1>
+    <p class="text-gray-600 text-sm">Jl. Jalan PNPM Dusun III Desa Malino Kecamatan Banawa Selatan, Kabupaten Donggala</p>
   </div>
 
-  <!-- Card Form Absensi -->
+  <!-- Card -->
   <div class="w-full max-w-3xl bg-white p-6 rounded-2xl shadow-lg">
-    <h2 class="text-2xl font-bold text-center mb-4 text-blue-700">📋 Form Absensi Guru</h2>
+    <h2 class="text-2xl font-bold text-center mb-4 text-blue-700">📋 Form Absensi Kehadiran Guru</h2>
 
     <form id="attendanceForm" class="space-y-4">
-      <!-- Nama Guru -->
       <div>
         <label class="block text-gray-700 font-semibold">Nama Guru</label>
-        <select id="teacherSelect" class="form-select border-gray-300 rounded-lg w-full p-2">
+        <select id="teacherSelect" class="form-select border-gray-300 rounded-lg w-full p-2" required>
           <option value="">Pilih Guru</option>
         </select>
       </div>
 
-      <!-- NIP -->
       <div>
         <label class="block text-gray-700 font-semibold">NIP</label>
         <input type="text" id="nip" class="form-control" readonly>
       </div>
 
-      <!-- Mata Pelajaran -->
       <div>
         <label class="block text-gray-700 font-semibold">Mata Pelajaran</label>
         <input type="text" id="subject" class="form-control" readonly>
       </div>
 
-      <!-- Kelas -->
       <div>
         <label class="block text-gray-700 font-semibold">Kelas</label>
         <select id="class" class="form-select border-gray-300 rounded-lg w-full p-2" required>
@@ -52,45 +49,44 @@
         </select>
       </div>
 
-      <!-- Topik Pembelajaran -->
       <div>
         <label class="block text-gray-700 font-semibold">Topik Pembelajaran</label>
         <input type="text" id="topic" class="form-control" placeholder="Masukkan topik hari ini" required>
       </div>
 
-      <!-- Jumlah Kehadiran -->
       <div>
         <label class="block text-gray-700 font-semibold">Jumlah Kehadiran Siswa</label>
         <input type="number" id="presentCount" class="form-control" placeholder="Contoh: 30" required>
       </div>
 
-      <!-- Foto -->
       <div>
-        <label class="block text-gray-700 font-semibold">Foto Dokumentasi</label>
-        <input type="file" id="photo" accept="image/*" capture="camera" class="form-control" required>
+        <label class="block text-gray-700 font-semibold">Foto Dokumentasi (langsung kamera)</label>
+        <input type="file" id="photo" accept="image/*" capture="environment" class="form-control" required>
       </div>
 
-      <!-- Lokasi -->
       <div>
         <label class="block text-gray-700 font-semibold">Lokasi</label>
         <p id="location" class="text-gray-600 text-sm">Menunggu lokasi...</p>
       </div>
 
-      <!-- Tombol Kirim -->
       <div class="text-center">
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition">Kirim Absensi</button>
+        <button type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition">
+          Kirim Absensi
+        </button>
       </div>
     </form>
 
-    <!-- Status -->
-    <div id="status" class="mt-4 text-center text-green-600 font-medium hidden">✅ Absensi berhasil dikirim!</div>
+    <div id="status" class="mt-4 text-center text-green-600 font-medium hidden">
+      ✅ Absensi berhasil dikirim!
+    </div>
   </div>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwo9OvfS6w_8fN2T-yBm5Mr4B3U-PMCdMCn52rgjj2mUkUYbSfZ7y53PgcSpsGBiSMBXg/exec"; // Ganti dengan URL Web App Apps Script kamu
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxyNvImK6zocoJt_Ns7tpfRsz_PnJfxvk5GCWeU0z3iucdC_wrIrTcqu2WzuMzod8ipWA/exec"; // Ganti dengan URL Web App dari Apps Script
     let latitude = "", longitude = "";
 
-    // ✅ Ambil lokasi otomatis
+    // Ambil lokasi otomatis
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         pos => {
@@ -104,7 +100,7 @@
       );
     }
 
-    // ✅ Ambil daftar guru dari Spreadsheet
+    // Ambil daftar guru
     fetch(`${scriptURL}?action=getTeachers`)
       .then(res => res.json())
       .then(data => {
@@ -119,19 +115,20 @@
         });
       });
 
-    // ✅ Isi otomatis NIP dan mapel
+    // Isi otomatis NIP dan mapel
     document.getElementById("teacherSelect").addEventListener("change", e => {
       const opt = e.target.selectedOptions[0];
       document.getElementById("nip").value = opt.dataset.nip || "";
       document.getElementById("subject").value = opt.dataset.subject || "";
     });
 
-    // ✅ Kirim absensi
+    // Kirim absensi
     document.getElementById("attendanceForm").addEventListener("submit", async e => {
       e.preventDefault();
 
       const file = document.getElementById("photo").files[0];
       const reader = new FileReader();
+
       reader.onloadend = async () => {
         const data = [{
           name: document.getElementById("teacherSelect").value,
@@ -154,8 +151,10 @@
         if (result.status === "Success") {
           document.getElementById("status").classList.remove("hidden");
           e.target.reset();
+          setTimeout(() => document.getElementById("status").classList.add("hidden"), 3000);
         }
       };
+
       reader.readAsDataURL(file);
     });
   </script>
