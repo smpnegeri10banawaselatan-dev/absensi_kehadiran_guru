@@ -19,6 +19,9 @@
     <label class="block mb-2 font-semibold">Pilih Kelas</label>
     <select id="kelasSelect" class="w-full border rounded p-2 mb-4">
       <option value="">-- Pilih Kelas --</option>
+      <option value="Kelas 7">Kelas 7</option>
+      <option value="Kelas 8">Kelas 8</option>
+      <option value="Kelas 9">Kelas 9</option>
     </select>
 
     <!-- Topik -->
@@ -53,13 +56,10 @@
     const topic = document.getElementById("topic");
     const presentCount = document.getElementById("presentCount");
 
-    let teachersData = [];
-
-    // ✅ Load daftar guru dari Apps Script
+    // ✅ Ambil daftar guru dari Apps Script
     fetch(`${GAS_URL}?action=getTeachers`)
       .then(res => res.json())
       .then(data => {
-        teachersData = data;
         data.forEach(t => {
           const opt = document.createElement("option");
           opt.value = JSON.stringify(t);
@@ -67,22 +67,7 @@
           teacherSelect.appendChild(opt);
         });
       })
-      .catch(() => alert("❌ Gagal memuat data guru"));
-
-    // ✅ Saat guru dipilih, isi dropdown kelas
-    teacherSelect.addEventListener("change", () => {
-      const selected = JSON.parse(teacherSelect.value);
-      kelasSelect.innerHTML = '<option value="">-- Pilih Kelas --</option>';
-      if (selected.kelas) {
-        const kelasList = selected.kelas.split(",").map(k => k.trim());
-        kelasList.forEach(k => {
-          const opt = document.createElement("option");
-          opt.value = k;
-          opt.textContent = k;
-          kelasSelect.appendChild(opt);
-        });
-      }
-    });
+      .catch(() => alert("❌ Gagal memuat data guru."));
 
     // ✅ Aktifkan kamera
     navigator.mediaDevices.getUserMedia({ video: true })
@@ -105,7 +90,7 @@
     // ✅ Simpan absensi ke Apps Script
     document.getElementById("submitBtn").addEventListener("click", async () => {
       if (!teacherSelect.value || !kelasSelect.value) {
-        alert("⚠️ Pilih guru dan kelas terlebih dahulu.");
+        alert("⚠️ Harap pilih guru dan kelas terlebih dahulu.");
         return;
       }
 
