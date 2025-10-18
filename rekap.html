@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekap Absensi Guru - SMP NEGERI 10 BANAWA SELATAN</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
+  <!-- Header -->
+  <div class="text-center mb-6">
+    <img src="smpn10.jpg"
+         alt="Logo Sekolah" class="mx-auto w-20 h-20 mb-2 rounded-full border shadow-md">
+    <h1 class="text-xl font-bold text-blue-800 uppercase tracking-wide">SMP Negeri 10 BANAWA Selatan</h1>
+    <p class="text-gray-600 text-sm">📅 Rekapitulasi Kehadiran Guru</p>
+  </div>
+
+  <!-- Filter dan Tombol -->
+  <div class="w-full max-w-5xl mb-4 flex flex-col md:flex-row justify-between items-center gap-2">
+    <div class="flex gap-2 w-full md:w-auto">
+      <select id="filterGuru" class="form-select border-gray-300 rounded-lg p-2 w-full md:w-60">
+        <option value="">Semua Guru</option>
+      </select>
+      <select id="filterKelas" class="form-select border-gray-300 rounded-lg p-2 w-full md:w-40">
+        <option value="">Semua Kelas</option>
+        <option value="VII">Kelas VII</option>
+        <option value="VIII">Kelas VIII</option>
+        <option value="IX">Kelas IX</option>
+      </select>
+    </div>
+    <button id="btnCetak" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+      🖨️ Cetak ke PDF
+    </button>
+  </div>
+
+  <!-- Tabel Rekap -->
+  <div class="w-full max-w-6xl overflow-x-auto bg-white rounded-2xl shadow-lg p-4">
+    <table id="rekapTable" class="table table-striped table-bordered text-sm">
+      <thead class="bg-blue-700 text-white text-center">
+        <tr>
+          <th>Tanggal</th>
+          <th>Nama</th>
+          <th>NIP</th>
+          <th>Mapel</th>
+          <th>Kelas</th>
+          <th>Topik</th>
+          <th>Jumlah Hadir</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Foto</th>
+        </tr>
+      </thead>
+      <tbody id="rekapBody" class="text-center"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const scriptURL = "PASTE_URL_WEBAPP_DI_SINI"; // Ganti dengan URL Web App yang sama
+
+    // Ambil data absensi
+    async function loadRekap() {
+      const res = await fetch(`${scriptURL}?action=getRekap`);
+      const data = await res.json();
+
+      const tbody = document.getElementById("rekapBody");
+      const guruSet = new Set();
+
+      tbody.innerHTML = "";
+
+      data.forEach(row => {
+        guruSet.add(row.nama);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.tanggal}</td>
+          <td>${row.nama}</td>
+          <td>${row.nip}</td>
+          <td>${row.mapel}</td>
+          <td>${row.kelas}</td>
+          <td>${row.topik}</td>
+          <td>${row.jumlah}</td>
+          <td>${row.lat}</td>
+          <td>${row.long}</td>
+          <td><a href="${row.foto}" target="_blank" class="text-blue-600 underline">Lihat</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Isi filter guru
+      const selectGuru = document.getElementById("filterGuru");
+      guruSet.forEach(nama => {
+        const opt = document.createElement("option");
+        opt.value = nama;
+        opt.textContent = nama;
+        selectGuru.appendChild(opt);
+      });
+    }
+
+    // Filter data
+    function filterTabel() {
+      const guru = document.getElementById("filterGuru").value.toLowerCase();
+      const kelas = document.getElementById("filterKelas").value.toLowerCase();
+      const rows = document.querySelectorAll("#rekapTable tbody tr");
+
+      rows.forEach(r => {
+        const nama = r.children[1].textContent.toLowerCase();
+        const kelasCell = r.children[4].textContent.toLowerCase();
+        r.style.display =
+          (guru === "" || nama.includes(guru)) &&
+          (kelas === "" || kelasCell.includes(kelas))
+            ? ""
+            : "none";
+      });
+    }
+
+    document.getElementById("filterGuru").addEventListener("change", filterTabel);
+    document.getElementById("filterKelas").addEventListener("change", filterTabel);
+
+    // Cetak PDF
+    document.getElementById("btnCetak").addEventListener("click", () => {
+      window.print();
+    });
+
+    loadRekap();
+  </script>
+</body>
+</html>
