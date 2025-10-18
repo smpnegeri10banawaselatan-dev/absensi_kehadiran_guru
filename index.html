@@ -1,162 +1,177 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Absensi Guru - SMPN 10 BANAWA SELATAN</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Absensi Guru - MKKS ROSO NU SINTUVU</title>
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body { background-color: #f3f4f6; }
+    video, canvas { width: 100%; border-radius: 10px; }
+    .logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
 
-  <!-- Header -->
-  <div class="text-center mb-6">
-    <img src="smpn10.jpg" alt="Logo Sekolah"
-         class="mx-auto w-20 h-20 mb-2 rounded-full border shadow-md">
-    <h1 class="text-xl font-bold text-blue-800 uppercase tracking-wide">SMPN 10 BANAWA SELATAN</h1>
-    <p class="text-gray-600 text-sm">Jl. Jalan PNPM Dusun III Desa Malino Kecamatan Banawa Selatan, Kabupaten Donggala</p>
-  </div>
+  <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-lg">
+    <!-- 🏫 Header Sekolah -->
+    <div class="text-center mb-6">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Logo_Kemdikbud.png" alt="Logo Sekolah" class="logo mx-auto mb-2">
+      <h2 class="text-lg font-bold text-blue-800">SMP NEGERI 10 BANAWA SELATAN</h2>
+      <h3 class="text-sm text-gray-600">Jl. Jalan PNPM Dusun III Desa Malino,Kec.Banawa Selatan - Kab.Donggala Sulawesi Tengah</h3>
+      <h4 class="text-xs text-gray-500 italic">E-mail: smpnegeri10banawaselatan@gmail.com | Telp: - </h4>
+      <hr class="mt-3 mb-2 border-blue-400">
+      <h1 class="text-xl font-bold text-blue-700">📋 ABSENSI KEHADIRAN GURU</h1>
+    </div>
 
-  <!-- Card -->
-  <div class="w-full max-w-3xl bg-white p-6 rounded-2xl shadow-lg">
-    <h2 class="text-2xl font-bold text-center mb-4 text-blue-700">📋 Form Absensi Kehadiran Guru</h2>
-
-    <form id="attendanceForm" class="space-y-4">
+    <!-- Form Absensi -->
+    <form id="attendanceForm" class="space-y-3">
       <div>
-        <label class="block text-gray-700 font-semibold">Nama Guru</label>
-        <select id="teacherSelect" class="form-select border-gray-300 rounded-lg w-full p-2" required>
-          <option value="">Pilih Guru</option>
+        <label class="font-semibold">Nama Guru</label>
+        <select id="teacherSelect" class="form-select" required>
+          <option value="">Pilih Guru...</option>
         </select>
       </div>
 
       <div>
-        <label class="block text-gray-700 font-semibold">NIP</label>
-        <input type="text" id="nip" class="form-control" readonly>
+        <label class="font-semibold">Kelas</label>
+        <input type="text" id="kelas" class="form-control" placeholder="Contoh: 7A" required>
       </div>
 
       <div>
-        <label class="block text-gray-700 font-semibold">Mata Pelajaran</label>
-        <input type="text" id="subject" class="form-control" readonly>
+        <label class="font-semibold">Topik/Kegiatan</label>
+        <input type="text" id="topic" class="form-control" placeholder="Contoh: Pengantar Informatika" required>
       </div>
 
       <div>
-        <label class="block text-gray-700 font-semibold">Kelas</label>
-        <select id="class" class="form-select border-gray-300 rounded-lg w-full p-2" required>
-          <option value="">Pilih Kelas</option>
-          <option value="VII">Kelas VII</option>
-          <option value="VIII">Kelas VIII</option>
-          <option value="IX">Kelas IX</option>
-        </select>
+        <label class="font-semibold">Jumlah Hadir</label>
+        <input type="number" id="presentCount" class="form-control" min="0" placeholder="Misal: 25" required>
       </div>
 
+      <!-- Lokasi -->
+      <div class="flex space-x-2">
+        <input type="text" id="latitude" class="form-control" placeholder="Latitude" readonly>
+        <input type="text" id="longitude" class="form-control" placeholder="Longitude" readonly>
+      </div>
+      <button type="button" class="btn btn-secondary w-full" onclick="getLocation()">📍 Ambil Lokasi</button>
+
+      <!-- Kamera -->
       <div>
-        <label class="block text-gray-700 font-semibold">Topik Pembelajaran</label>
-        <input type="text" id="topic" class="form-control" placeholder="Masukkan topik hari ini" required>
+        <label class="font-semibold">Foto Kehadiran</label>
+        <video id="camera" autoplay playsinline></video>
+        <button type="button" class="btn btn-outline-primary w-full mt-2" onclick="capturePhoto()">📸 Ambil Foto</button>
+        <canvas id="snapshot" class="mt-2 hidden"></canvas>
       </div>
 
-      <div>
-        <label class="block text-gray-700 font-semibold">Jumlah Kehadiran Siswa</label>
-        <input type="number" id="presentCount" class="form-control" placeholder="Contoh: 30" required>
-      </div>
-
-      <div>
-        <label class="block text-gray-700 font-semibold">Foto Dokumentasi (langsung kamera)</label>
-        <input type="file" id="photo" accept="image/*" capture="environment" class="form-control" required>
-      </div>
-
-      <div>
-        <label class="block text-gray-700 font-semibold">Lokasi</label>
-        <p id="location" class="text-gray-600 text-sm">Menunggu lokasi...</p>
-      </div>
-
-      <div class="text-center">
-        <button type="submit"
-          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition">
-          Kirim Absensi
-        </button>
-      </div>
+      <button type="submit" class="btn btn-primary w-full mt-3">✅ Simpan Absensi</button>
     </form>
 
-    <div id="status" class="mt-4 text-center text-green-600 font-medium hidden">
-      ✅ Absensi berhasil dikirim!
-    </div>
+    <p id="statusMsg" class="text-center text-green-600 font-semibold mt-3"></p>
   </div>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbxyNvImK6zocoJt_Ns7tpfRsz_PnJfxvk5GCWeU0z3iucdC_wrIrTcqu2WzuMzod8ipWA/exec"; // Ganti dengan URL Web App dari Apps Script
-    let latitude = "", longitude = "";
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyG9JBTJSD7JgbOLUnsLFdIRj60cECvfp37Fk8D9siFvmgb_hWRVHcpEwImptPA8PQmQQ/exec'; 
+    // 🟢 Ganti dengan URL Web App Apps Script kamu
 
-    // Ambil lokasi otomatis
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          latitude = pos.coords.latitude;
-          longitude = pos.coords.longitude;
-          document.getElementById("location").textContent = `📍 ${latitude}, ${longitude}`;
-        },
-        err => {
-          document.getElementById("location").textContent = "Tidak dapat mengakses lokasi.";
-        }
-      );
+    let photoData = "";
+
+    // --- Ambil daftar guru ---
+    async function loadTeachers() {
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=getTeachers`);
+        const data = await res.json();
+        const select = document.getElementById('teacherSelect');
+        data.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = JSON.stringify(t);
+          opt.textContent = `${t.name} (${t.subject})`;
+          select.appendChild(opt);
+        });
+      } catch (error) {
+        alert("Gagal memuat daftar guru. Periksa koneksi atau Apps Script URL.");
+      }
     }
 
-    // Ambil daftar guru
-    fetch(`${scriptURL}?action=getTeachers`)
-      .then(res => res.json())
-      .then(data => {
-        const select = document.getElementById("teacherSelect");
-        data.forEach(t => {
-          const option = document.createElement("option");
-          option.value = t.name;
-          option.textContent = `${t.name} (${t.subject})`;
-          option.dataset.nip = t.nip;
-          option.dataset.subject = t.subject;
-          select.appendChild(option);
-        });
+    // --- Kamera ---
+    async function startCamera() {
+      const video = document.getElementById('camera');
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (err) {
+        alert('Gagal mengakses kamera: ' + err.message);
+      }
+    }
+
+    function capturePhoto() {
+      const video = document.getElementById('camera');
+      const canvas = document.getElementById('snapshot');
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      photoData = canvas.toDataURL('image/png');
+      canvas.classList.remove('hidden');
+      alert('📷 Foto berhasil diambil!');
+    }
+
+    // --- Lokasi ---
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          document.getElementById('latitude').value = pos.coords.latitude;
+          document.getElementById('longitude').value = pos.coords.longitude;
+        }, err => alert('Gagal ambil lokasi: ' + err.message));
+      } else {
+        alert('Geolocation tidak didukung di browser ini.');
+      }
+    }
+
+    // --- Kirim ke Apps Script ---
+    document.getElementById('attendanceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const selected = JSON.parse(document.getElementById('teacherSelect').value);
+      const payload = [{
+        name: selected.name,
+        nip: selected.nip,
+        subject: selected.subject,
+        kelas: document.getElementById('kelas').value,
+        topic: document.getElementById('topic').value,
+        presentCount: document.getElementById('presentCount').value,
+        latitude: document.getElementById('latitude').value,
+        longitude: document.getElementById('longitude').value,
+        photo: photoData
+      }];
+
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' }
       });
 
-    // Isi otomatis NIP dan mapel
-    document.getElementById("teacherSelect").addEventListener("change", e => {
-      const opt = e.target.selectedOptions[0];
-      document.getElementById("nip").value = opt.dataset.nip || "";
-      document.getElementById("subject").value = opt.dataset.subject || "";
+      const result = await res.json();
+      if (result.status === 'Success') {
+        document.getElementById('statusMsg').innerText = '✅ Absensi berhasil disimpan!';
+        e.target.reset();
+        photoData = "";
+      } else {
+        alert('❌ Gagal menyimpan absensi!');
+      }
     });
 
-    // Kirim absensi
-    document.getElementById("attendanceForm").addEventListener("submit", async e => {
-      e.preventDefault();
-
-      const file = document.getElementById("photo").files[0];
-      const reader = new FileReader();
-
-      reader.onloadend = async () => {
-        const data = [{
-          name: document.getElementById("teacherSelect").value,
-          nip: document.getElementById("nip").value,
-          subject: document.getElementById("subject").value,
-          class: document.getElementById("class").value,
-          topic: document.getElementById("topic").value,
-          presentCount: document.getElementById("presentCount").value,
-          latitude,
-          longitude,
-          photo: reader.result
-        }];
-
-        const response = await fetch(scriptURL, {
-          method: "POST",
-          body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-        if (result.status === "Success") {
-          document.getElementById("status").classList.remove("hidden");
-          e.target.reset();
-          setTimeout(() => document.getElementById("status").classList.add("hidden"), 3000);
-        }
-      };
-
-      reader.readAsDataURL(file);
-    });
+    // --- Init ---
+    loadTeachers();
+    startCamera();
   </script>
 </body>
 </html>
